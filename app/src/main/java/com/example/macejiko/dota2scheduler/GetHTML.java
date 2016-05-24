@@ -1,40 +1,44 @@
 package com.example.macejiko.dota2scheduler;
 
-import android.os.AsyncTask;
+import android.content.AsyncTaskLoader;
+import android.content.Context;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by macejiko on 2/1/16.
  */
 
-public class GetHTML extends AsyncTask<URL, Integer, Document> {
+public class GetHTML extends AsyncTaskLoader<List<String>> {
 
-    public AsyncResponse delegate = null;
+    public GetHTML(Context context) {
+        super(context);
+    }
 
-    protected Document doInBackground(URL... urls) {
+    @Override
+    public List<String> loadInBackground() {
         Document doc = null;
+        Elements links;
+        List<String> s = new ArrayList<>();
+
         try {
             doc = Jsoup.connect("http://wiki.teamliquid.net/dota2/Liquipedia:Upcoming_and_ongoing_matches").get();
-            //textView.setText("Response: " + response.toString());
+            links = doc.select("a[href]");
+            for(Element el : links){
+                s.add(el.toString());
+            }
 
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return doc;
-    }
-
-    protected void onProgressUpdate(Integer... progress) {
-        //do
-    }
-
-    @Override
-    protected void onPostExecute(Document result) {
-        delegate.processFinish(result);
+        return s;
     }
 
 }
